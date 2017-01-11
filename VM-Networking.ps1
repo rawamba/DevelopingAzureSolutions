@@ -1,17 +1,17 @@
-﻿# Author: Roger Wamba, Ottawa - ON Canada
+# Author: Roger Wamba, Ottawa - ON Canada
 # Last Update: January 1st, 2017
 # Create a virtual network with two subnets with Security groups and on VM in each VM
 
 
 $ErrorActionPreference = "Stop" # Stop at the first error
 
-#Login and set subscrition context
+#Login and set subscrition context (Uncomment below to login and select subscript
 #Login-AzureRmAccount
-Set-AzureRmContext -SubscriptionName "MSDN Offer Virtual Machines"
+#Set-AzureRmContext -SubscriptionName "MSDN Offer Virtual Machines"
 
 #Create a resource group
 $location = "East US"
-$myResourceGroupName = "Exam70532-Networking-rg"
+$myResourceGroupName = "Pacosoft-Networking-rg"
 
 #For practice purposes, we always remove this resourceGroup
 #Remove-AzureRmResourceGroup -Name $myResourceGroupName
@@ -20,11 +20,11 @@ $myResourceGroupName = "Exam70532-Networking-rg"
 $myResourceGroup = New-AzureRmResourceGroup -Name $myResourceGroupName -Location $location -Tag @{ environment = "dev" }
 write-host -ForegroundColor Green "Successfully created resource group " $myResourceGroupName
 
-#Create storage accounts for Front End (Web) and back end (DBs) network areas
-$myStorageAccountNameFE = "exam70532frontend" 
+#Create storage accounts for Front End (Web for instance) and back end (DBs) network areas
+$myStorageAccountNameFE = "Pacosoftfrontend" 
 $myStorageAccountFE = New-AzureRmStorageAccount -ResourceGroupName $myResourceGroup.ResourceGroupName -Name $myStorageAccountNameFE -SkuName "Standard_LRS" -Kind "Storage" -Location $location
 
-$myStorageAccountNameBE = "exam70532backend" 
+$myStorageAccountNameBE = "Pacosoftbackend" 
 $myStorageAccountBE = New-AzureRmStorageAccount -ResourceGroupName $myResourceGroup.ResourceGroupName -Name $myStorageAccountNameBE -SkuName "Standard_LRS" -Kind "Storage" -Location $location
 write-host -ForegroundColor Green "Successfully created storage accounts: " $myStorageAccountBE.StorageAccountName $myStorageAccountFE.StorageAccountName
 
@@ -44,15 +44,15 @@ write-host -ForegroundColor Green "Successfully created 2 network security group
 
 
 #2. Create FrontEnd and BackEnd subnets
-$myFrontEndSubnetName = "Exam70532-FrontEnd-Subnet"
-$myBackEndSubnetName = "Exam70532-BackEnd-Subnet"
+$myFrontEndSubnetName = "Pacosoft-FrontEnd-Subnet"
+$myBackEndSubnetName = "Pacosoft-BackEnd-Subnet"
 $myFrontEndSubnet = New-AzureRmVirtualNetworkSubnetConfig -Name $myFrontEndSubnetName -AddressPrefix 10.0.1.0/24 -NetworkSecurityGroup $NSGFrontEnd
 $myBackEndSubnet = New-AzureRmVirtualNetworkSubnetConfig -Name $myBackEndSubnetName -AddressPrefix 10.0.2.0/24 -NetworkSecurityGroup $NSGBackEnd
 write-host -ForegroundColor Green "Successfully created subnets: " $myFrontEndSubnet.Name $myBackEndSubnet.Name
 
 
 #3. Create the Virtual Network with two subnets
-$myVnet = New-AzureRmVirtualNetwork -Location $location -Name "Exam70532-Networking-Vnet" -ResourceGroupName $myResourceGroupName -AddressPrefix 10.0.0.0/16 -Subnet $myFrontEndSubnet, $myBackEndSubnet
+$myVnet = New-AzureRmVirtualNetwork -Location $location -Name "Pacosoft-Networking-Vnet" -ResourceGroupName $myResourceGroupName -AddressPrefix 10.0.0.0/16 -Subnet $myFrontEndSubnet, $myBackEndSubnet
 write-host -ForegroundColor Green "Successfully created Virtual network: " $myVnet.Name
 
 $y=$myVnet.Subnets.Count
@@ -120,10 +120,5 @@ $ip =get-AzureRmPublicIpAddress -Name $myPublicIp.Name -ResourceGroupName $myRes
 $ip.DnsSettings += @{DomainNameLabel = $dnsLabel}  
 write-host -ForegroundColor Green "Successfully set dns label of VM:" $i "to" $dnsLabel                 
 Set-AzureRmPublicIpAddress -PublicIpAddress $ip  
-
-    
+   
 }
-
-
-# 6.10 Finally export template
-Export-AzureRmResourceGroup -ResourceGroupName $myResourceGroupName -Path C:\Users\Roger\OneDrive\Certifications\070-532\Exam70532RGConfigNetworking.json -IncludeParameterDefaultValue -IncludeComments
